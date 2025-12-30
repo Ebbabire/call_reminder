@@ -337,87 +337,6 @@ Manually trigger the scheduler to test immediately:
 curl -X POST http://localhost:8000/api/v1/test/trigger-scheduler
 ```
 
-## 🐛 Troubleshooting
-
-### Backend Issues
-
-**Problem**: `Connection refused` when frontend tries to connect
-- **Solution**: Ensure backend is running on port 8000
-
-**Problem**: `Vapi API key is not configured`
-- **Solution**: Add `VAPI_API_KEY` to `backend/.env`
-
-**Problem**: Scheduler not processing reminders
-- **Solution**: 
-  1. Check backend logs for scheduler messages
-  2. Verify `trigger_at` is in the past (UTC)
-  3. Check reminder status is `scheduled`
-  4. Visit `/health` endpoint to verify scheduler is running
-
-**Problem**: Database errors
-- **Solution**: Delete `call_me_reminder.db` and restart backend (database will be recreated)
-
-### Frontend Issues
-
-**Problem**: API calls failing with CORS errors
-- **Solution**: Ensure `CORS_ORIGINS` in backend `.env` includes your frontend URL
-
-**Problem**: Timezone conversion issues
-- **Solution**: Verify browser timezone settings and ensure `trigger_at` is being sent as UTC
-
-**Problem**: Forms not submitting
-- **Solution**: Check browser console for validation errors
-
-### Vapi Integration Issues
-
-See `backend/DEBUG_VAPI.md` for detailed Vapi troubleshooting guide.
-
-## 📝 Environment Variables Reference
-
-### Backend
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `APP_NAME` | Application name | No | "Call Me Reminder API" |
-| `DEBUG` | Debug mode | No | false |
-| `DATABASE_URL` | Database connection string | No | sqlite:///./call_me_reminder.db |
-| `CORS_ORIGINS` | Allowed CORS origins (JSON array) | No | ["http://localhost:3000"] |
-| `VAPI_API_KEY` | Vapi API key | Yes* | - |
-| `VAPI_API_URL` | Vapi API base URL | No | https://api.vapi.ai |
-| `VAPI_ASSISTANT_ID` | Vapi Assistant ID | Yes* | - |
-| `VAPI_PHONE_NUMBER_ID` | Vapi Phone Number ID | Yes* | - |
-| `SCHEDULER_INTERVAL_SECONDS` | Scheduler check interval | No | 30 |
-
-*Required for voice call functionality
-
-### Frontend
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `NEXT_PUBLIC_API_URL` | Backend API URL | No | http://localhost:8000/api/v1 |
-
-## 🏗️ Architecture
-
-### System Flow
-
-```
-User Creates Reminder
-    ↓
-Frontend → POST /api/v1/reminders/
-    ↓
-Backend stores in database (status: scheduled)
-    ↓
-Background Scheduler (runs every 30s)
-    ↓
-Checks for due reminders (trigger_at <= now)
-    ↓
-For each due reminder:
-    ↓
-Calls Vapi API to trigger phone call
-    ↓
-Updates status: completed (success) or failed (error)
-```
-
 ### Components
 
 - **Frontend**: Next.js app with React Query for state management
@@ -429,17 +348,6 @@ Updates status: completed (success) or failed (error)
 ## 📄 License
 
 MIT License - see LICENSE file for details
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📞 Support
-
-For issues and questions:
-- Check the troubleshooting section
-- Review `backend/DEBUG_VAPI.md` for Vapi-specific issues
-- Check backend logs for detailed error messages
 
 ## 🎯 Roadmap
 
